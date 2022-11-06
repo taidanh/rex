@@ -1,22 +1,45 @@
-use std::str::FromStr;
-
 grammar;
 
-pub createStmt: String = {
-    "create" <l:rexExpr> "or" <r:rexExpr> => format!("{l}|{r}")
-}
+pub rexStmt: String = {
+    CREATE <e:rexExpr> SEMI => e,
+    LET <id:Id> EQ <re:rexExpr> SEMI => format!("{} = {}", id, re)
+};
 
 rexExpr: String = {
-    "\"" <s:Str> "\"" => s,
+    <re:rexExpr> OR <rt:rexTerm> => format!("{re}|{rt}"),
+    rexTerm,
+};
+
+rexTerm: String = {
+    <rt:rexTerm> AND <rf:rexFactor> => format!("{rt}{rf}"),
+    rexFactor,
+};
+
+rexFactor: String = {
+    <rf:rexFactor> REPEAT => format!("{rf}*"),
+    rexUnit,
+};
+
+rexUnit: String = {
+    Str => <>.to_string(),
+    Id  => <>.to_string(),
+    LP <re:rexExpr> RP => format!("({re})"),
+};
+
+////////////
+// TOKENS //
+////////////
+match {
+    r"[[:alpha:]]+[0-9]*" => Id,
+    "create"              => CREATE,
+    "let"                 => LET,
+    "="                   => EQ,
+    "or"                  => OR,
+    "and"                 => AND,
+    "repeat"              => REPEAT,
+    "("                   => LP,
+    ")"                   => RP,
+    ";"                   => SEMI,
+} else {
+    r"[.--\s]+"           => Str, // separate because the regex overlaps with Id
 }
-
-Str: String = {
-    <s:r"[a-z]+"> => s.to_string()
-};
-
-pub Term: i32 = {
-    <n:Num> => n,
-    "(" <t:Term> ")" => t,
-};
-
-Num: i32 = <s:r"[0-9]+"> => i32::from_str(s).unwrap();
