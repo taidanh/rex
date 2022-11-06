@@ -1,8 +1,8 @@
 grammar;
 
 pub rexStmt: String = {
-    CREATE <e:rexExpr> SEMI => e,
-    LET <id:Id> EQ <re:rexExpr> SEMI => format!("{} = {}", id, re)
+    CREATE <e:rexExpr> SEMI             => e,
+    LET <id:Id> MATCH <re:rexExpr> SEMI => format!("{id} = {re}")
 };
 
 rexExpr: String = {
@@ -21,8 +21,8 @@ rexFactor: String = {
 };
 
 rexUnit: String = {
-    Str => <>.to_string(),
-    Id  => <>.to_string(),
+    Id                 => <>.to_string(),
+    Str                => <>.to_string(),
     LP <re:rexExpr> RP => format!("({re})"),
 };
 
@@ -30,16 +30,19 @@ rexUnit: String = {
 // TOKENS //
 ////////////
 match {
-    r"[[:alpha:]]+[0-9]*" => Id,
-    "create"              => CREATE,
-    "let"                 => LET,
-    "="                   => EQ,
-    "or"                  => OR,
-    "and"                 => AND,
-    "repeat"              => REPEAT,
-    "("                   => LP,
-    ")"                   => RP,
-    ";"                   => SEMI,
+   r"\$([\w--\$]+)" => Id,
+    "create"        => CREATE,
+    "let"           => LET,
+    "match"         => MATCH,
+    "or"            => OR,
+    "and"           => AND,
+    "repeat"        => REPEAT,
+    "("             => LP,
+    ")"             => RP,
+    ";"             => SEMI,
+    "$"             => DOLLAR,
+    "'"             => SQUOTE,
+    "\""            => DQUOTE,
 } else {
-    r"[.--\s]+"           => Str, // separate because the regex overlaps with Id
+   r"[.--[\s\$]]+"  => Str, // separate because the regex overlaps with Id
 }
