@@ -1,11 +1,16 @@
-#[path ="../rexlexer.rs"]
-mod rexlexer;
-#[path ="../rexparser.rs"]
-mod rexparser;
+use lalrpop_util::lalrpop_mod;
 
-use rexlexer::*;
-use rexparser::*;
+lalrpop_mod!(pub rex);
+pub mod ast;
 
 fn main() {
-    println!("Hello, world!");
+    println!("main");
+    rex();
+}
+
+fn rex() {
+    let expr = rex::createStmtParser::new()
+        .parse(r#"create "rz" or "z""#)
+        .unwrap();
+    print!("{expr}");
 }
