@@ -30,7 +30,7 @@ rexUnit: String = {
 // TOKENS //
 ////////////
 match {
-   r"\$([\w--\$]+)" => Id,
+   r"\$[\w--\$]+" => Id,
     "create"        => CREATE,
     "let"           => LET,
     "match"         => MATCH,

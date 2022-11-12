@@ -10,16 +10,13 @@ fn main() {
 }
 
 fn rex() {
-    let re = Regex::new(r"\$([[:alnum:]]+)").unwrap();
-    println!("re match: {}", re.is_match("$a1"));
+    let re = Regex::new(r"\$(\w+)").unwrap();
+    println!("re match: {}", re.is_match("$a1x"));
+    println!("re match: {}", re.is_match("xyz"));
+    let expr = rex::rexStmtParser::new().parse(r#"create x or z and y repeat;"#).unwrap();
+    println!("{expr}");
     let expr = rex::rexStmtParser::new().parse(r#"let $a1 match a1;"#).unwrap();
     println!("{expr}");
-    let expr = rex::rexStmtParser::new()
-        .parse(r#"create x or z and y repeat;"#)
-        .unwrap();
-    println!("{expr}");
-    let expr = rex::rexStmtParser::new()
-        .parse(r#"create rz or $a1 and y repeat;"#)
-        .unwrap();
+    let expr = rex::rexStmtParser::new().parse(r#"create rz or $a1 and y repeat;"#).unwrap();
     println!("{expr}");
 }
