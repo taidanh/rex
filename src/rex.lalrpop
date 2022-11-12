@@ -16,12 +16,12 @@ rexTerm: String = {
 };
 
 rexFactor: String = {
-    <rf:rexFactor> REPEAT => format!("{rf}*"),
+    <rf:rexFactor> REPEAT => Node::new(None, NodeType::Star, None),
     rexUnit,
 };
 
 rexUnit: String = {
-    Str => <>.to_string(),
+    Str => Node::new(<>, NodeType::Str, None),
     Id  => <>.to_string(),
     LP <re:rexExpr> RP => format!("({re})"),
 };
