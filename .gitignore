@@ -1,4 +1,3 @@
 /target
 *.interp
 *.tokens
-*.rs

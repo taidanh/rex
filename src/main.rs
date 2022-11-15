@@ -12,9 +12,9 @@ fn rex() {
     let expr = rex::rexStmtParser::new()
         .parse(r#"create rz or z and y repeat;"#)
         .unwrap();
-    println!("{expr}");
+    println!("{:#?}", expr);
     let expr = rex::rexStmtParser::new()
         .parse(r#"let a1 = rz or z and (y repeat);"#)
         .unwrap();
-    println!("{expr}");
+    println!("{:#?}", expr);
 }

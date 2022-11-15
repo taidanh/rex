@@ -1,36 +1,38 @@
+use crate::ast::{NodeType,Node};
+
 grammar;
 
-pub rexStmt: String = {
+pub rexStmt: Node = {
     CREATE <e:rexExpr> SEMI => e,
-    LET <id:Id> EQ <re:rexExpr> SEMI => format!("{} = {}", id, re)
+    // LET <id:Id> EQ <re:rexExpr> SEMI => format!("{} = {}", id, re),
 };
 
-rexExpr: String = {
-    <re:rexExpr> OR <rt:rexTerm> => format!("{re}|{rt}"),
+rexExpr: Node = {
+    <re:rexExpr> OR <rt:rexTerm> => Node::new(&[re, rt], NodeType::Union),
     rexTerm,
 };
 
-rexTerm: String = {
-    <rt:rexTerm> AND <rf:rexFactor> => format!("{rt}{rf}"),
+rexTerm: Node = {
+    <rt:rexTerm> AND <rf:rexFactor> => Node::new(&[rt, rf], NodeType::Concat),
     rexFactor,
 };
 
-rexFactor: String = {
-    <rf:rexFactor> REPEAT => Node::new(None, NodeType::Star, None),
+rexFactor: Node = {
+    <rf:rexFactor> REPEAT => Node::new(&[rf], NodeType::Star),
     rexUnit,
 };
 
-rexUnit: String = {
-    Str => Node::new(<>, NodeType::Str, None),
-    Id  => <>.to_string(),
-    LP <re:rexExpr> RP => format!("({re})"),
+rexUnit: Node = {
+    Str => Node::new_str(<>),
+    // Id  => <>.to_string(),
+    LP <re:rexExpr> RP => re,
 };
 
 ////////////
 // TOKENS //
 ////////////
 match {
-    r"[[:alpha:]]+[0-9]*" => Id,
+    r"\w+([0-9\w])*" => Id,
     "create"              => CREATE,
     "let"                 => LET,
     "="                   => EQ,
