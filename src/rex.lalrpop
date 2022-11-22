@@ -4,7 +4,7 @@ grammar;
 
 pub rexStmt: Node = {
     CREATE <e:rexExpr> SEMI => e,
-    // LET <id:Id> EQ <re:rexExpr> SEMI => format!("{} = {}", id, re),
+    LET <id:Id> EQ <re:rexExpr> SEMI => re,
 };
 
 rexExpr: Node = {
@@ -24,7 +24,7 @@ rexFactor: Node = {
 
 rexUnit: Node = {
     Str => Node::new_str(<>),
-    // Id  => <>.to_string(),
+    Id  => Node::new(&[], NodeType::Id).set_value(<>),
     LP <re:rexExpr> RP => re,
 };
 
@@ -32,7 +32,7 @@ rexUnit: Node = {
 // TOKENS //
 ////////////
 match {
-    r"\w+([0-9\w])*" => Id,
+    r"\$(\w*)" => Id,
     "create"              => CREATE,
     "let"                 => LET,
     "="                   => EQ,
@@ -43,5 +43,5 @@ match {
     ")"                   => RP,
     ";"                   => SEMI,
 } else {
-    r"[.--\s]+"           => Str, // separate because the regex overlaps with Id
+    r"\w+" => Str, // separate because the regex overlaps with Id
 }

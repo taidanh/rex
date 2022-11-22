@@ -14,6 +14,8 @@ pub enum NodeState {
     Accept,
 }
 
+// v remove later
+#[allow(unused)]
 #[derive(Clone,Debug)]
 pub struct Node {
     accepts: Vec<String>,
@@ -51,14 +53,14 @@ impl Node {
         }
     }
 
-    fn update_union(self) -> Node {
+    pub fn set_value(&self, value: &str) -> Node {
         Node {
-            edges: Vec::from([self.edges[0].set_accept(), self.edges[1].set_accept()]),
-            ..self
+            value: Some(value.to_string()),
+            ..self.clone()
         }
     }
 
-    // update function to not use clone()
+    // TODO update function to not use clone()
     pub fn set_states(&self) -> Node {
         match self.op {
             NodeType::Star => {
@@ -75,9 +77,15 @@ impl Node {
                 Node { edges: vec![l_new, r_new], ..self.clone() }
             },
             NodeType::Str => self.set_accept(),
-            _ => self.to_owned(),
+            NodeType::Id => self.to_owned(),
         }
     }
+}
+
+pub fn check_str(_s: &str) -> bool {
+    todo!()
+    // move CREATE LET etc out of lalrpop match and
+    // into a token action?
 }
 
 // create aa repeat and b;
