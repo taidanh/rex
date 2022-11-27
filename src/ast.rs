@@ -53,6 +53,14 @@ impl Node {
         }
     }
 
+    // creates a new
+    fn update_accepts(&self, accepts: Vec<String>) -> Node {
+        Node {
+            accepts,
+            ..self.clone()
+        }
+    }
+
     pub fn set_value(&self, value: &str) -> Node {
         Node {
             value: Some(value.to_string()),
@@ -61,23 +69,53 @@ impl Node {
     }
 
     // TODO update function to not use clone()
-    pub fn set_states(&self) -> Node {
+    pub fn get_states(&self) -> Node {
         match self.op {
             NodeType::Star => {
-                let new = self.edges[0].set_states();
+                let new = self.edges[0].get_states();
                 new.set_accept()
             },
             NodeType::Concat => {
-                let r_new = self.edges[1].set_states();
+                let r_new = self.edges[1].get_states();
                 Node { edges: vec![self.edges[0].clone(), r_new], ..self.clone() }
             },
             NodeType::Union => {
-                let l_new = self.edges[0].set_states();
-                let r_new = self.edges[1].set_states();
+                let l_new = self.edges[0].get_states();
+                let r_new = self.edges[1].get_states();
                 Node { edges: vec![l_new, r_new], ..self.clone() }
             },
             NodeType::Str => self.set_accept(),
             NodeType::Id => self.to_owned(),
+        }
+    }
+
+    pub fn get_accepts(&self) -> Node {
+        // if self.accepts.len() > 0 { return }
+        match self.op {
+            NodeType::Star => {
+                let edge = self.edges[0].get_accepts();
+                let accepts = edge.accepts.clone();
+                Node { edges: vec![edge], accepts, ..self.clone() }
+            },
+            NodeType::Concat => {
+                let left = self.edges[0].get_accepts();
+                let accepts = left.accepts.clone();
+                Node { edges: vec![left, self.edges[1].clone()], accepts, ..self.clone() }
+            },
+            NodeType::Union => {
+                let left = self.edges[0].get_accepts();
+                let right = self.edges[1].get_accepts();
+                let accepts = [left.accepts.clone(), right.accepts.clone()].concat();
+                Node { edges: vec![left, right], accepts, ..self.clone() }
+            },
+            NodeType::Str => {
+                self.clone()
+            },
+            NodeType::Id => {
+                // still needs some work
+                // implement a symbol table
+                self.update_accepts(vec![self.value.clone().unwrap()])
+            },
         }
     }
 }
@@ -85,7 +123,7 @@ impl Node {
 pub fn check_str(_s: &str) -> bool {
     todo!()
     // move CREATE LET etc out of lalrpop match and
-    // into a token action?
+    // into a token action (not sure if necessary)
 }
 
 // create aa repeat and b;
