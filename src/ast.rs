@@ -69,11 +69,11 @@ impl Node {
     }
 
     // TODO update function to not use clone()
-    pub fn get_states(&self) -> Node {
+    fn get_states(&self) -> Node {
         match self.op {
             NodeType::Star => {
                 let new = self.edges[0].get_states();
-                new.set_accept()
+                Node { edges: vec![new], ..self.clone() }
             },
             NodeType::Concat => {
                 let r_new = self.edges[1].get_states();
@@ -89,8 +89,7 @@ impl Node {
         }
     }
 
-    pub fn get_accepts(&self) -> Node {
-        // if self.accepts.len() > 0 { return }
+    fn get_accepts(&self) -> Node {
         match self.op {
             NodeType::Star => {
                 let edge = self.edges[0].get_accepts();
@@ -99,8 +98,9 @@ impl Node {
             },
             NodeType::Concat => {
                 let left = self.edges[0].get_accepts();
+                let right = self.edges[1].get_accepts();
                 let accepts = left.accepts.clone();
-                Node { edges: vec![left, self.edges[1].clone()], accepts, ..self.clone() }
+                Node { edges: vec![left, right], accepts, ..self.clone() }
             },
             NodeType::Union => {
                 let left = self.edges[0].get_accepts();
@@ -108,16 +108,55 @@ impl Node {
                 let accepts = [left.accepts.clone(), right.accepts.clone()].concat();
                 Node { edges: vec![left, right], accepts, ..self.clone() }
             },
-            NodeType::Str => {
-                self.clone()
-            },
-            NodeType::Id => {
-                // still needs some work
-                // implement a symbol table
-                self.update_accepts(vec![self.value.clone().unwrap()])
-            },
+            NodeType::Str => self.clone(),
+            NodeType::Id => self.update_accepts(vec![self.value.clone().unwrap()]), // TODO: implement a symbol table
         }
     }
+
+    pub fn build_state_machine(&self) -> Node {
+        let accepts = self.get_accepts();
+        accepts.get_states()
+    }
+
+    #[allow(unused)]
+    pub fn rex_match(&self, s: String) -> bool {
+        let pos = if string_compare(&self.accepts, &s) >= 0 {
+            string_compare(&self.accepts, &s) as usize
+        } else {
+            return false;
+        };
+        let n = self.accepts[pos].len();
+        match self.op {
+            NodeType::Star => {
+                if s[n..].is_empty() {
+                    return true;
+                }
+                self.rex_match(s[n..].to_string())
+            },
+            NodeType::Concat => {
+                if pos != 0 {
+                    return false;
+                } else {
+                    self.edges[1].rex_match(s[n..].to_string())
+                }
+            },
+            NodeType::Union => {
+                self.edges[pos].rex_match(s)
+            },
+            NodeType::Str => true,
+            NodeType::Id => true,   // TODO: implement symbol table
+        }
+    }
+}
+
+fn string_compare(accepts: &Vec<String>, s: &String) -> isize {
+    // returns index of matching string, -1 otherwise
+    for (i, accept) in accepts.iter().enumerate() {
+        if s.starts_with(accept) {
+            return i as isize;
+        }
+    }
+    -1
 }
 
 pub fn check_str(_s: &str) -> bool {
