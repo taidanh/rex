@@ -15,3 +15,7 @@
 ---
 
 ### Matching Rex
+---
+
+Tai Danh: [@taidanh](https://github.com/taidanh)
+Eric Hernandez: [eric-hdez](https://github.com/eric-hdez)
