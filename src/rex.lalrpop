@@ -3,8 +3,8 @@ use crate::ast::{NodeType,Node};
 grammar;
 
 pub rexStmt: Node = {
-    CREATE <e:rexExpr> SEMI => e,
-    LET <id:Id> EQ <re:rexExpr> SEMI => re,
+    MATCH <e:rexExpr> SEMI => e,
+    LET <id:Id> BE <re:rexExpr> SEMI => re,
 };
 
 rexExpr: Node = {
@@ -25,7 +25,7 @@ rexFactor: Node = {
 rexUnit: Node = {
     Str => Node::new_str(<>),
     Id  => Node::new(&[], NodeType::Id).set_value(<>),
-    LP <re:rexExpr> RP => re,
+    LB <re:rexExpr> RB => re,
 };
 
 ////////////
@@ -33,14 +33,14 @@ rexUnit: Node = {
 ////////////
 match {
     r"\$(\w*)" => Id,
-    "create"              => CREATE,
+    "match"               => MATCH,
     "let"                 => LET,
-    "="                   => EQ,
+    "be"                  => BE,
     "or"                  => OR,
     "and"                 => AND,
     "repeat"              => REPEAT,
-    "("                   => LP,
-    ")"                   => RP,
+    "{"                   => LB,
+    "}"                   => RB,
     ";"                   => SEMI,
 } else {
     r"\w+" => Str, // separate because the regex overlaps with Id
