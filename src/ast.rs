@@ -1,3 +1,11 @@
+use std::collections::HashMap;
+
+pub type SymbolTable = HashMap<String, Node>;
+
+pub enum Stmt {
+    Assign(Node),
+    Match(Node)
+}
 
 #[derive(Clone,Debug)]
 pub enum NodeType {
@@ -49,6 +57,15 @@ impl Node {
     fn set_accept(&self) -> Node {
         Node {
             state: Some(NodeState::Accept),
+            op: NodeType::Id,
+            ..self.clone()
+        }
+    }
+
+    pub fn create_variable(&self, value: &str) -> Node {
+        Node {
+            value: Some(value.to_owned()),
+
             ..self.clone()
         }
     }
@@ -89,37 +106,45 @@ impl Node {
         }
     }
 
-    fn get_accepts(&self) -> Node {
+    fn get_accepts(&self, st: &mut SymbolTable) -> Node {
         match self.op {
             NodeType::Star => {
-                let edge = self.edges[0].get_accepts();
+                let edge = self.edges[0].get_accepts(st);
                 let accepts = edge.accepts.clone();
                 Node { edges: vec![edge], accepts, ..self.clone() }
             },
             NodeType::Concat => {
-                let left = self.edges[0].get_accepts();
-                let right = self.edges[1].get_accepts();
+                let left = self.edges[0].get_accepts(st);
+                let right = self.edges[1].get_accepts(st);
                 let accepts = left.accepts.clone();
                 Node { edges: vec![left, right], accepts, ..self.clone() }
             },
             NodeType::Union => {
-                let left = self.edges[0].get_accepts();
-                let right = self.edges[1].get_accepts();
+                let left = self.edges[0].get_accepts(st);
+                let right = self.edges[1].get_accepts(st);
                 let accepts = [left.accepts.clone(), right.accepts.clone()].concat();
                 Node { edges: vec![left, right], accepts, ..self.clone() }
             },
             NodeType::Str => self.clone(),
-            NodeType::Id => self.update_accepts(vec![self.value.clone().unwrap()]), // TODO: implement a symbol table
+            NodeType::Id => {
+                st.insert(self.value.clone().unwrap(), self.edges[0].clone());
+                // self.update_accepts(vec![self.value.clone().unwrap()]) // TODO: implement a symbol table
+                let lookup = st.get(&self.value.unwrap());
+                self.update_accepts(st.get(&self.value.unwrap())
+                    .or_else(|| {
+                        panic!("Udefine Variable Error")
+                    }))
+            }
         }
     }
 
-    pub fn build_state_machine(&self) -> Node {
-        let accepts = self.get_accepts();
+    pub fn build_state_machine(&self, st: &mut SymbolTable) -> Node {
+        let accepts = self.get_accepts(st);
         accepts.get_states()
     }
 
     #[allow(unused)]
-    pub fn rex_match(&self, s: String) -> bool {
+    pub fn rex_match(&self, s: String, st: &SymbolTable) -> bool {
         let pos = if string_compare(&self.accepts, &s) >= 0 {
             string_compare(&self.accepts, &s) as usize
         } else {
@@ -131,22 +156,35 @@ impl Node {
                 if s[n..].is_empty() {
                     return true;
                 }
-                self.rex_match(s[n..].to_string())
+                self.rex_match(s[n..].to_string(), st)
             },
             NodeType::Concat => {
                 if pos != 0 {
                     return false;
                 } else {
-                    self.edges[1].rex_match(s[n..].to_string())
+                    self.edges[1].rex_match(s[n..].to_string(), st)
                 }
             },
             NodeType::Union => {
-                self.edges[pos].rex_match(s)
+                self.edges[pos].rex_match(s, st)
             },
             NodeType::Str => true,
-            NodeType::Id => true,   // TODO: implement symbol table
+            NodeType::Id => {
+                true
+            }
         }
     }
+
+    pub fn add_stmt_list(self, sl: Node) -> Node {
+        Node {
+            edges: vec![sl],
+            ..self
+        }
+    }
+}
+
+pub enum Error {
+    UndefinedVariable(String),
 }
 
 fn string_compare(accepts: &Vec<String>, s: &String) -> isize {
@@ -158,12 +196,3 @@ fn string_compare(accepts: &Vec<String>, s: &String) -> isize {
     }
     -1
 }
-
-pub fn check_str(_s: &str) -> bool {
-    todo!()
-    // move CREATE LET etc out of lalrpop match and
-    // into a token action (not sure if necessary)
-}
-
-// create aa repeat and b;
-// create a or b;

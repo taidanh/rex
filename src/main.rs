@@ -1,8 +1,11 @@
+use std::collections::HashMap;
 use std::path::Path;
 use std::fs;
 
 use clap::Parser;
 use lalrpop_util::lalrpop_mod;
+
+use crate::ast::SymbolTable;
 
 lalrpop_mod!(pub rex);
 pub mod ast;
@@ -19,8 +22,9 @@ struct Args {
 }
 
 fn main() {
-    let args = Args::parse();
+    let mut st: SymbolTable = HashMap::new();
 
+    let args = Args::parse();
     let mut input = args.input_file.unwrap();
     let file = Path::new(&input);
     let rex_file = Path::new(&args.rex);
@@ -31,14 +35,16 @@ fn main() {
 
     let rexpr = if rex_file.is_file() {
         let rex_contents = fs::read_to_string(rex_file).unwrap();
-        rex::rexStmtParser::new()
+        rex::rexStmtListParser::new()
             .parse(&rex_contents)
-            .unwrap()
+            .unwrap_or_else(|_| panic!("Invalid Rex code."))
     } else {
-        rex::rexStmtParser::new()
+        rex::rexStmtListParser::new()
             .parse(&args.rex)
             .unwrap()
     };
-    let rex_match = rexpr.build_state_machine().rex_match(input);
+    println!("Input: {:?}", input);
+    println!("RExpr: {:#?}", rexpr);
+    let rex_match = rexpr.build_state_machine(&mut st).rex_match(input, &st);
     println!("Rex matches: {:?}", rex_match);
 }

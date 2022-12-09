@@ -2,9 +2,14 @@ use crate::ast::{NodeType,Node};
 
 grammar;
 
-pub rexStmt: Node = {
+pub rexStmtList: Node = {
+    <s:rexStmt> <sl:rexStmtList> => s.add_stmt_list(sl),
+    rexStmt => <>,
+}
+
+rexStmt: Node = {
     MATCH <e:rexExpr> SEMI => e,
-    LET <id:Id> BE <re:rexExpr> SEMI => re,
+    LET <id:Id> BE <re:rexExpr> SEMI => re.create_variable(id),
 };
 
 rexExpr: Node = {
@@ -32,16 +37,17 @@ rexUnit: Node = {
 // TOKENS //
 ////////////
 match {
-    r"\$(\w*)" => Id,
-    "match"               => MATCH,
-    "let"                 => LET,
-    "be"                  => BE,
-    "or"                  => OR,
-    "and"                 => AND,
-    "repeat"              => REPEAT,
-    "{"                   => LB,
-    "}"                   => RB,
-    ";"                   => SEMI,
+   r"\$(\w*)" => Id,
+    "match"   => MATCH,
+    "let"     => LET,
+    "be"      => BE,
+    "or"      => OR,
+    "and"     => AND,
+    "repeat"  => REPEAT,
+    "{"       => LB,
+    "}"       => RB,
+    ";"       => SEMI,
+    "\n"      => NL,
 } else {
-    r"\w+" => Str, // separate because the regex overlaps with Id
+   r"\w+"     => Str, // separate because the regex overlaps with Id
 }
