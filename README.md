@@ -12,7 +12,7 @@ For our final project, we decided to build **REX**: a declarative regular expres
 
 ## Downsides of Regex
 
-One of the main downsides of traditional regular expressions is that they can be difficult to read, write, and understand, especially newcomers or someone who is working on complex or multi-layered patterns. Traditional regular expression syntax is often dense and opaque, which can make it difficult to write and maintain regular expressions, and can also make it difficult to understand and modify regular expressions written by others.
+One of the main downsides of traditional regular expressions is that they can be difficult to read, write, and understand, especially for newcomers or someone who is working on multi-layered patterns. Traditional regular expression syntax is often dense and opaque, which can make it difficult to write and maintain regular expressions. This difficulty increases when there are more hands on a project and they are trying to understand and modify regular expressions written by others.
 
 Another downside of traditional regular expressions is that they are not very modular or reusable. In many cases, regular expressions are written as long, monolithic strings that are difficult to break up into smaller, more manageable pieces. This can make it difficult to reuse regular expressions, or to modify regular expressions without breaking existing code.
 
@@ -20,13 +20,15 @@ Another downside of traditional regular expressions is that they are not very mo
 
 The ideal use case for REX is when developers need to write complex, flexible, and maintainable regular expressions that can be easily reused and understood by others. REX is designed to make it easy for developers to create regular expressions that are modular, readable, and intuitive, while also providing powerful features such as variables and composite operators that enable developers to write more expressive and flexible patterns.
 
-One of the key goals of REX is to make regular expression writing more intuitive and accessible, particularly for developers who are new to the field or who may find traditional regular expression syntax difficult to understand. By using a syntax that is similar to declarative programming languages, REX allows developers to focus on what they want to match, rather than how to match it, which makes it easier to write, understand, and modify regular expressions.
+One of the key goals of REX is to make regular expression writing more intuitive and accessible, particularly for developers who are new to the field or who may find traditional regular expression syntax difficult to understand. By using a syntax that is similar to declarative programming languages, REX allows developers to focus on what they want to match, rather than how to match it. This keeps one of our core missions in mind to makes it easier to write, understand, and modify regular expressions.
 
 Another important goal of REX is to enable developers to write more reusable and maintainable regular expressions. Through the use of variables and composite operators, REX allows developers to create modular, self-contained patterns that can be easily shared and reused across different parts of a regular expression. This makes it easier to update and modify regular expressions, as well as making the code more readable and maintainable.
 
 ## Motivation
 
-The idea for our project came after one of the early CSE 211 lectures that discussed parsers and parser generators. In the lecture, we discussed regular expressions, the syntax of regular expressions, and parsing with derivatives. As we discussed the lecture after class, we noted the difficulty of parsing very large and intricate regular expression patterns with the naked eye. We thought of SQL, which at times can almost feel like you are speaking a natural language, and we thought that maybe bringing that aspect and creating a declarative regular expression language would ease the difficulty of mentally parsing intricate regular expression patterns.
+The idea for our project came after one of the early CSE 211 lectures that discussed parsers and parser generators. In the lecture, we discussed regular expressions, the syntax of regular expressions, and parsing with derivatives. As we discussed the lecture after class, we noted the difficulty of parsing very large and intricate regular expression patterns with the naked eye. We thought of SQL, which at times can almost feel like you are speaking a natural language, and we thought about bringing that aspect to a declarative regular expression language. This could help ease the difficulty of mentally parsing intricate regular expression patterns.
+
+REX takes some inspiration from Melody, a language that compiles ECMA Script regular expressions, while aiming to be more readable and maintainable. We found melody a while back during our third year of university, and our idea reminded us about this regular expression language.
 
 ## Set Up
 
