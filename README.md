@@ -4,11 +4,11 @@ Authors:
 
 Tai Danh: [@taidanh](https://github.com/taidanh)
 
-Eric Hernandez: [eric-hdez](https://github.com/eric-hdez)
+Eric Hernandez: [@eric-hdez](https://github.com/eric-hdez)
 
 ## Overview
 
-For our final project, we decided to build **REX**: a declarative regular expression language, with SQL-like syntax. The language supports the basic regular expression operators *union* (|), *concatenation* (.), and *star repeat* (\*). The project will go public very soon!
+For our final project, we decided to build **REX**: a declarative regular expression language, with SQL-like syntax. The language supports the basic regular expression operators *union* (|), *concatenation*, and *star repeat* (\*). The project will go public very soon!
 
 ## Downsides of Regex
 
