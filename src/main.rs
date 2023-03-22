@@ -45,6 +45,6 @@ fn main() {
     };
     println!("Input: {:?}", input);
     println!("RExpr: {:#?}", rexpr);
-    let rex_match = rexpr.build_state_machine(&mut st).rex_match(input, &st);
+    let rex_match = rexpr.build_state_machine().rex_match(input);
     println!("Rex matches: {:?}", rex_match);
 }
