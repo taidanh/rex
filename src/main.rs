@@ -6,6 +6,7 @@ use lalrpop_util::lalrpop_mod;
 
 lalrpop_mod!(pub rex);
 pub mod ast;
+pub mod regex_ast;
 
 #[derive(Parser)]
 #[command(about)]
@@ -16,6 +17,10 @@ struct Args {
     #[arg(short,long)]
     /// Input your Rex program
     rex: String,
+
+    #[arg(short='e',long)]
+    /// Use Rust's regex engine to find matches
+    use_regex: bool
 }
 
 fn main() {
@@ -41,4 +46,27 @@ fn main() {
     };
     let rex_match = rexpr.build_state_machine().rex_match(input);
     println!("Rex matches: {:?}", rex_match);
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::rex;
+
+    #[test]
+    fn basic_nomatch() {
+        let rex_code = "match { a and { b or c } };";
+        let program = rex::rexStmtParser::new().parse(rex_code).unwrap();
+        let fail = program.build_state_machine().rex_match("cb".to_string());
+        // println!("program: {:#?}", program);
+        assert_eq!(fail, false);
+    }
+
+    #[test]
+    fn basic_match() {
+        let rex_code = "match a and { b or c };";
+        let program = rex::rexStmtParser::new().parse(rex_code).unwrap();
+        let pass = program.build_state_machine().rex_match("ab".to_string());
+        // println!("program: {:#?}", program);
+        assert_eq!(pass, true);
+    }
 }
