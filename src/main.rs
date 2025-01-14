@@ -69,4 +69,14 @@ mod tests {
         // println!("program: {:#?}", program);
         assert_eq!(pass, true);
     }
+
+    #[test]
+    fn simple_match() {
+        let rex_code = "match a and { b or c };";
+        let input = ("bac").to_string();
+        let program = rex::rexStmtParser::new().parse(rex_code).unwrap();
+        let pass = program.build_state_machine().rex_match(input);
+        println!("program: {:#?}", program);
+        assert_eq!(pass, true);
+    }
 }
